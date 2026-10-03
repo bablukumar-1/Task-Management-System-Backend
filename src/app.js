@@ -1,5 +1,9 @@
 import express from "express"
+import  healthCheckRouter  from "./routes/healthcheck.routes.js"
+
 
 const app = express()
 
-export default app;
+app.use("/api/v1/healthcheck", healthCheckRouter)
+
+export default app;  
