@@ -9,7 +9,7 @@ const userRegistrationValidator = () => {
       .withMessage("Email is required")
       .isEmail()
       .withMessage("Please provide a valid email address")
-      .normalizeEmail()
+      // .normalizeEmail()
       .isLength({ max: 254 })
       .withMessage("Email cannot exceed 254 characters"),
 
@@ -84,4 +84,5 @@ const userLoginValidator = () => {
       .withMessage("Password contain at least one special chaeracter"),
   ];
 };
+
 export { userRegistrationValidator,userLoginValidator };

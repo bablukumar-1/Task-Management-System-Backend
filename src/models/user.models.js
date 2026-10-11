@@ -1,7 +1,7 @@
-import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import mongoose, { Schema } from "mongoose";
 const userSchema = new Schema(
   {
     avatar: {
@@ -60,10 +60,9 @@ const userSchema = new Schema(
   { timestamps: true },
 );
 
-userSchema.pre("save", async function name(next) {
-  if (!this.isModified("password")) return next();
-  this.password = bcrypt.hash(this.password, 10);
-  next();
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return 
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
 userSchema.methods.isPasswordCorrect = async function (password) {
