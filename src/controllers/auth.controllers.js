@@ -5,7 +5,6 @@ import { ApiError } from "../utils/api-error.js";
 import { emailVerificationMailGenContent, sendMail } from "../utils/mail.js";
 import crypto from "crypto";
 
-
 const registerUser = asyncHandler(async (req, res) => {
   const { email, username, fullname, password } = req.body;
   const existingUser = await User.findOne({
@@ -63,7 +62,7 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const verifyEmail = asyncHandler(async (req, res) => {
-  const {token} = req.params;
+  const { token } = req.params;
   if (!token) {
     throw new ApiError(400, "Invalid token");
   }
@@ -79,14 +78,52 @@ const verifyEmail = asyncHandler(async (req, res) => {
   user.isEmailVerified = true;
   user.emailVerificationToken = undefined;
   await user.save();
-  return res.status(200).json(
-    new ApiResponse(200,{},"Email verified successfully")
-  )
+  return res.status(200).json(new ApiResponse(200, {}, "Email verified successfully"));
 });
 
 const resendVerificationEmail = asyncHandler(async (req, res) => {
-  const { email, username, password, role } = req.body;
-  //    validation
+  const { userId } = req.body;
+
+  if (!userId) {
+    throw new ApiError(400, "Invalid user");
+  }
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (user.isEmailVerified) {
+    return res.status(200).json(new ApiResponse(200, null, "User email is already verified"));
+  }
+
+  const token = crypto.randomBytes(32).toString("hex");
+
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  const expiryTime = new Date(Date.now() + 10 * 60 * 1000);
+
+  user.emailVerificationToken = hashedToken;
+  user.emailVerificationExpiry = expiryTime;
+
+  await user.save();
+
+  const verificationUrl = `${process.env.API_BASE_URL}/api/v1/user/verify/${token}`;
+
+  try {
+    await sendMail({
+      email: user.email,
+      subject: "Verify your email",
+      mailGenContent: emailVerificationMailGenContent(user.username, verificationUrl),
+    });
+  } catch (error) {
+    console.error("Resend verification email error:", error.message);
+
+    throw new ApiError(500, "Unable to send verification email");
+  }
+
+  return res.status(200).json(new ApiResponse(200, null, "Verification email sent successfully"));
 });
 
 const loginUser = asyncHandler(async (req, res) => {
