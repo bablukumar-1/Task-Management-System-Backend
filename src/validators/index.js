@@ -56,33 +56,19 @@ const userRegistrationValidator = () => {
   ];
 };
 
-const userLoginValidator = () => {
-  return [
-    body("email")
-      .isEmail()
-      .withMessage("Please Enter a valid email")
-      .trim()
-      .notEmpty()
-      .withMessage("Email is required")
-      .normalizeEmail()
-      .isLength({ max: 254 })
-      .withMessage("Email cannot exceed 254 characters"),
-    body("password")
-      .notEmpty()
-      .withMessage("Password is required")
-      .isLength({ min: 8 })
-      .withMessage("Password must be atleast 8 characters")
-      .isLength({ max: 64 })
-      .withMessage("password cannot exceed 64 character")
-      .matches(/[a-z]/)
-      .withMessage("Password contains at least one lowercase letter")
-      .matches(/[A-Z]/)
-      .withMessage("Password must be atleast one Uppercase letter")
-      .matches(/[0-9]/)
-      .withMessage("Password must be contain at least one number")
-      .matches(/[^azA-Z0-9]/)
-      .withMessage("Password contain at least one special chaeracter"),
-  ];
-};
+const userLoginValidator = () => [
+  body("email")
+    .isString().withMessage("Email must be a string")
+    .trim()
+    .notEmpty().withMessage("Email is required")
+    .isLength({ max: 254 }).withMessage("Email cannot exceed 254 characters")
+    .isEmail().withMessage("Please enter a valid email")
+    .normalizeEmail({ gmail_remove_dots: false, gmail_remove_subaddress: false }),
+
+  body("password")
+    .isString().withMessage("Password must be a string")
+    .notEmpty().withMessage("Password is required")
+    .isLength({ max: 64 }).withMessage("Password cannot exceed 64 characters"),
+];
 
 export { userRegistrationValidator,userLoginValidator };
