@@ -17,6 +17,6 @@ router.route("/login").post(userLoginValidator(),validate,loginUser)
 router.route("/logout").get(isLoggedIn,logoutUser)
 router.route("/forgot-password").post(isLoggedIn,forgotPasswordRequest)
 router.route("/reset-password/:token").post(userLoginValidator(),validate,changeCurrentPassword)
-router.route("/refresh-token").post(refreshAccessToken)
-router.route("/profile").post(isLoggedIn,getCurrentUser)
+router.route("/refresh-token").get(refreshAccessToken)
+router.route("/profile").get(isLoggedIn,getCurrentUser)
 export default router

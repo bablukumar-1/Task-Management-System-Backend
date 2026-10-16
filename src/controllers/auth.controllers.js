@@ -161,8 +161,15 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   const jwtToken = jwt.sign({ id: user._id, username: user.username }, process.env.JWT_SECRET_KEY, {
-    expiresIn: process.env.JWT_EXPIRE_TIME,
+    expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
   });
+
+  const refreshToken = jwt.sign({ id: user._id }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+  });
+
+  user.refreshToken = crypto.createHash("sha256").update(refreshToken).digest("hex");
+  await user.save({ validateBeforeSave: false });
 
   const cookieOptions = {
     httpOnly: true,
@@ -171,7 +178,10 @@ const loginUser = asyncHandler(async (req, res) => {
     maxAge: 24 * 60 * 60 * 1000,
   };
 
-  res.cookie("token", jwtToken, cookieOptions);
+  res.cookie("accessToken", jwtToken, { ...cookieOptions, maxAge: 15 * 60 * 1000 });
+
+  res.cookie("refreshToken", refreshToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
+
   const userResponse = user.toObject();
   delete userResponse.password;
   delete userResponse.emailVerificationExpiry;
@@ -245,7 +255,7 @@ const forgotPasswordRequest = asyncHandler(async (req, res) => {
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { token } = req.params;
-  const {email,password}=req.body;
+  const { email, password } = req.body;
   if (!token) {
     throw new ApiError(400, "Reset token is required");
   }
@@ -269,7 +279,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingToken = req.cookies?.refreshToken;
   if (!incomingToken) throw new ApiError(401, "Refresh token missing");
-
+  console.log("refresh token", incomingToken);
   let decoded;
   try {
     decoded = jwt.verify(incomingToken, process.env.REFRESH_TOKEN_SECRET);
@@ -284,11 +294,20 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Refresh token is invalid or already used");
   }
 
+   if (!user || user.refreshToken !== incomingHash) {
+    throw new ApiError(401, "Refresh token is invalid or already used");
+  }
+
   const newAccessToken = jwt.sign(
     { id: user._id, username: user.username },
     process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: "15m" }
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY  },
   );
+    const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.IS_PRODUCTION === "true",
+    sameSite: "lax",
+  };
 
   return res
     .status(200)
@@ -298,16 +317,14 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
 const getCurrentUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.id).select(
-    "-password -emailVerificationToken -emailVerificationExpiry -forgotPasswordToken -forgotPasswordExpiry"
+    "-password -emailVerificationToken -emailVerificationExpiry -forgotPasswordToken -forgotPasswordExpiry",
   );
 
   if (!user) {
     throw new ApiError(404, "User not found");
   }
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, user, "User profile loaded successfully"));
+  return res.status(200).json(new ApiResponse(200, user, "User profile loaded successfully"));
 });
 
 export {

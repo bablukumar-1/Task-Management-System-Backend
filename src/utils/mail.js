@@ -48,6 +48,7 @@ const sendMail = async (options) => {
   }
 };
 
+
 const emailVerificationMailGenContent = (
   username,
   verificationURL
@@ -55,6 +56,7 @@ const emailVerificationMailGenContent = (
   body: {
     name: username,
     intro: "Welcome! We're excited to have you on board.",
+
     action: {
       instructions: "To get started, please verify your email.",
       button: {
@@ -63,9 +65,15 @@ const emailVerificationMailGenContent = (
         link: verificationURL,
       },
     },
-    outro: "Need help? Just reply to this email.",
+
+    outro: [
+      "If the button does not work, copy and paste this link into your browser:",
+      verificationURL,
+      "Need help? Just reply to this email.",
+    ],
   },
 });
+
 
 const forgotPasswordMailgenContent = (
   username,
@@ -74,6 +82,7 @@ const forgotPasswordMailgenContent = (
   body: {
     name: username,
     intro: "We received a request to reset your password.",
+
     action: {
       instructions: "Click the button below to reset your password.",
       button: {
@@ -82,8 +91,15 @@ const forgotPasswordMailgenContent = (
         link: passwordResetUrl,
       },
     },
+
+    outro: [
+      "If the button above does not work, copy and paste the following link into your browser:",
+      passwordResetUrl,
+      "If you did not request a password reset, please ignore this email.",
+    ],
   },
 });
+
 
 export {
   emailVerificationMailGenContent,
