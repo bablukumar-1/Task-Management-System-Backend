@@ -58,17 +58,38 @@ const userRegistrationValidator = () => {
 
 const userLoginValidator = () => [
   body("email")
-    .isString().withMessage("Email must be a string")
+    .isString()
+    .withMessage("Email must be a string")
     .trim()
-    .notEmpty().withMessage("Email is required")
-    .isLength({ max: 254 }).withMessage("Email cannot exceed 254 characters")
-    .isEmail().withMessage("Please enter a valid email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isLength({ max: 254 })
+    .withMessage("Email cannot exceed 254 characters")
+    .isEmail()
+    .withMessage("Please enter a valid email")
     .normalizeEmail({ gmail_remove_dots: false, gmail_remove_subaddress: false }),
 
   body("password")
-    .isString().withMessage("Password must be a string")
-    .notEmpty().withMessage("Password is required")
-    .isLength({ max: 64 }).withMessage("Password cannot exceed 64 characters"),
+    .isString()
+    .withMessage("Password must be a string")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ max: 64 })
+    .withMessage("Password cannot exceed 64 characters"),
 ];
 
-export { userRegistrationValidator,userLoginValidator };
+const project = () => [
+  body("name")
+    .trim()
+    .notEmpty()
+    .withMessage("Project name is required")
+    .isLength({ min: 5 })
+    .withMessage("name contain atleast 5 characters")
+    .isLength({ max: 50 })
+    .withMessage("name cannot exceed 64 characters"),
+  body("description")
+     .trim()
+     .notEmpty().withMessage("Description is required")
+
+];
+export { userRegistrationValidator, userLoginValidator,project };

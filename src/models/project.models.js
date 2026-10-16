@@ -7,7 +7,7 @@ const projectSchema = new Schema({
         unique:true,
         trim:true
     },
-    desscription:{
+    description:{
         type:String,
         required:true,
         trim:true
