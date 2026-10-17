@@ -160,7 +160,7 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(403, "Please verify your email before logging in");
   }
 
-  const jwtToken = jwt.sign({ id: user._id, username: user.username }, process.env.JWT_SECRET_KEY, {
+  const jwtToken = jwt.sign({ id: user._id, username: user.username }, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
   });
 

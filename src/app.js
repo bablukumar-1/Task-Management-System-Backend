@@ -19,7 +19,7 @@ app.use(cookieParser())
 
 app.use("/api/v1/healthcheck", healthCheckRouter)
 app.use("/api/v1/user", authRouter)
-app.use("/api/v2/project", projectRouter)
+app.use("/api/v2", projectRouter)
 
 
 export default app;  
