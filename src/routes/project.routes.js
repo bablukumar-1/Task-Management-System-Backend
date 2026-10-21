@@ -1,5 +1,5 @@
 import  { Router } from "express";
-import isLoggedIn from "../middlewares/auth.middleware.js";
+import {isLoggedIn} from "../middlewares/auth.middleware.js";
 import { project } from "../validators/index.js";
 import { validate } from "../middlewares/validator.middleware.js";
 import { addMemberToProjects, createProject, deleteAllProject, deleteProject, deleteProjectMember, getProjectById, getProjectMembers, getProjects, updateMemberRole, updateProject, updateProjectMembers } from "../controllers/project.controllers.js";

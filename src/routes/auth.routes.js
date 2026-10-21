@@ -2,7 +2,7 @@ import  { Router } from "express";
 import { changeCurrentPassword, forgotPasswordRequest, getCurrentUser, loginUser, logoutUser, refreshAccessToken, registerUser, resendVerificationEmail, verifyEmail } from "../controllers/auth.controllers.js";
 import { validate } from "../middlewares/validator.middleware.js";
 import { userLoginValidator, userRegistrationValidator } from "../validators/index.js";
-import isLoggedIn from "../middlewares/auth.middleware.js";
+import {isLoggedIn} from "../middlewares/auth.middleware.js";
 
 
 
